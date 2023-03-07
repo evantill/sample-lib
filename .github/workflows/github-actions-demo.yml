@@ -23,6 +23,5 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-          cache: 'gradle'
       - name: Check java version
         run: java -version
