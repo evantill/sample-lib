@@ -13,7 +13,12 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "1.7.36" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 assertj = "org.assertj:assertj-core:3.24.2"
 
+commons-math3 = { module = "org.apache.commons:commons-math3", version = "3.6.1" }
+guava = { module = "com.google.guava:guava", version = "31.1-jre" }
+
 [plugins]
 gradleVersions = { id = "com.github.ben-manes.versions", version = "0.46.0" }
 pluginPublishing = { id = "com.gradle.plugin-publish", version = "1.1.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.0" }
+
+
