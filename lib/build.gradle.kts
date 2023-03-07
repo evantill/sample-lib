@@ -27,7 +27,6 @@ publishing {
 
     publications {
         create<MavenPublication>("sampleLib") {
-
             from(components["java"])
 
             pom {
@@ -57,8 +56,8 @@ publishing {
     }
 }
 
-group = "com.github.evantill"
-version = "0.0.3-SNAPSHOT"
+group = "com.github.evantill.sample-lib"
+version = "0.0.2-SNAPSHOT"
 
 repositories {
     // Use Maven Central for resolving dependencies.
