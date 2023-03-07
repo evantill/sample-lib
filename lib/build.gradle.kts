@@ -69,12 +69,23 @@ val publishAllPublicationsToLocalRepository by tasks.existing
 
 val isCiBuild = System.getenv("CI") != null
 
+
+val signingKeyId: String? by project
+val signingKey: String? by project
+val signingPassword: String? by project
+val signingEnabled: Provider<Boolean> = provider {
+    signingKeyId != null && signingKey != null && signingPassword != null
+}
+
 signing {
     if(isCiBuild){
-        val signingKey: String? by project
-        val signingPassword: String? by project
-        useInMemoryPgpKeys(signingKey, signingPassword)
+        logger.lifecycle("sign using in memory pgp keys")
+        if(!signingEnabled.get()){
+            logger.warn("invalid signing configuration")
+        }
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     }else {
+        logger.lifecycle("sign using gpg cmd")
         useGpgCmd()
     }
     sign(sampleLibPublication)
@@ -128,4 +139,8 @@ val printLocalRepo by tasks.registering{
             logger.lifecycle("\t"+it.relativeTo(repositoryDir).toString());
         }
     }
+}
+
+tasks.withType<Sign>().configureEach {
+    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
