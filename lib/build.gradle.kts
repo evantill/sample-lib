@@ -10,6 +10,51 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
+    `maven-publish`
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/evantill/sample-lib")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: error("missing env GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN") ?: error("missing env GITHUB_TOKEN")
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("sampleLib") {
+
+            from(components["java"])
+
+            pom {
+                name.set("Sample Library")
+                description.set("Sample library build using gradle and github workflow")
+                url.set("https://github.com/evantill/sample-lib")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("evantill")
+                        name.set("Eric Vantillard")
+                        email.set("eric.vantillard@evaxion.fr")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:https://github.com/evantill/sample-lib.git")
+                    developerConnection.set("scm:git:git@github.com:evantill/sample-lib.git")
+                    url.set("https://github.com/evantill/sample-lib")
+                }
+            }
+        }
+    }
 }
 
 group = "com.github.evantill"
