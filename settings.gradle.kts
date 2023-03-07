@@ -9,3 +9,4 @@
  */
 
 rootProject.name = "sample-lib"
+include("lib")
