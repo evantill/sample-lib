@@ -16,8 +16,6 @@ include("code-coverage-report")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
-val isCiBuild = System.getenv("CI") != null
-
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
