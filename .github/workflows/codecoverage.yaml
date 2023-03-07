@@ -1,0 +1,37 @@
+name: Code Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  publish-code-coverage:
+    runs-on: ubuntu-latest
+    if: github.repository == 'evantill/sample-lib'
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3
+
+      - name: Setup Java
+        uses: actions/setup-java@3f07048e3d294f56e9b90ac5ea2c6f74e9ad0f98 # v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: Generate Coverage Report
+        uses: gradle/gradle-build-action@6095a76664413da4c8c134ee32e8a8ae900f0f1f # v2
+        with:
+          gradle-home-cache-cleanup: true
+          arguments: jacocoMergedReport
+
+      - name: Publish Coverage
+        if: success()
+        uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # tag=v3
+        with:
+          files: ./code-coverage-report/build/reports/jacoco/jacocoMergedReport/jacocoMergedReport.xml
+          verbose: true
