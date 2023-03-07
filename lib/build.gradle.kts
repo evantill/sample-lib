@@ -69,31 +69,29 @@ val publishAllPublicationsToLocalRepository by tasks.existing
 
 val isCiBuild = System.getenv("CI") != null
 
-
 val signingKeyId: String? by project
 val signingKey: String? by project
 val signingPassword: String? by project
-val signingEnabled: Provider<Boolean> = provider {
-    signingKeyId != null && signingKey != null && signingPassword != null
-}
+val signingConfigured: Boolean = (signingKeyId != null && signingKey != null && signingPassword != null)
+val signingEnabled = (isCiBuild && signingConfigured) || !isCiBuild
 
 signing {
-    if(isCiBuild){
+    if(signingConfigured) {
         logger.lifecycle("sign using in memory pgp keys")
-        if(!signingEnabled.get()){
-            logger.warn("invalid signing configuration")
-        }
         useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-    }else {
+    } else {
         logger.lifecycle("sign using gpg cmd")
         useGpgCmd()
     }
-    sign(sampleLibPublication)
+    if(signingEnabled) {
+        sign(sampleLibPublication)
+    }else{
+        logger.lifecycle("signing disabled")
+    }
 }
 
-
 group = "com.github.evantill.sample-lib"
-version = "0.0.2-SNAPSHOT"
+version = "0.0.3-SNAPSHOT"
 
 repositories {
     // Use Maven Central for resolving dependencies.
