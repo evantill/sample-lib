@@ -19,8 +19,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/evantill/sample-lib")
             credentials {
-                username = System.getenv("GITHUB_ACTOR") ?: error("missing env GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN") ?: error("missing env GITHUB_TOKEN")
+                username = "GITHUB_ACTOR".byProperty
+                password = "GITHUB_TOKEN".byProperty
             }
         }
     }
@@ -82,3 +82,5 @@ testing {
         }
     }
 }
+
+val String.byProperty: String get() = providers.gradleProperty(this).orNull ?: error("missing property " + this)
