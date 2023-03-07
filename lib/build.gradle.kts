@@ -24,6 +24,10 @@ publishing {
                 password = "GITHUB_TOKEN".byProperty
             }
         }
+        maven {
+            name = "Local"
+            url = uri(project.layout.buildDirectory.dir("localMavenRepository"))
+        }
     }
 
     publications {
@@ -81,6 +85,11 @@ testing {
             useJUnitJupiter(libs.versions.junit.get())
         }
     }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 val String.byProperty: String? get() = providers.gradleProperty(this).orNull

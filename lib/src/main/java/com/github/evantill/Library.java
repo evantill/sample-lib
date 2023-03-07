@@ -3,7 +3,15 @@
  */
 package com.github.evantill;
 
+/**
+ * A library class.
+ */
 public class Library {
+
+    /**
+     * Some lib method
+     * @return true
+     */
     public boolean someLibraryMethod() {
         return true;
     }
