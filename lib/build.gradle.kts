@@ -83,4 +83,11 @@ testing {
     }
 }
 
-val String.byProperty: String get() = providers.gradleProperty(this).orNull ?: error("missing property " + this)
+val String.byProperty:String? get() = providers.gradleProperty(this).orNull
+
+tasks.register("printEnv"){
+    group="help"
+    description="print used env variable"
+    logger.lifecycle("GITHUB_ACTOR="+"GITHUB_ACTOR".byProperty)
+    logger.lifecycle("GITHUB_TOKEN="+"GITHUB_TOKEN".byProperty)
+}
