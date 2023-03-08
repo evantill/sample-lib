@@ -41,8 +41,8 @@ val isSnaphot = version.toString().endsWith("-SNAPSHOT") || "snapshot".byPropert
 
 val githupPackageUrl = uri("https://maven.pkg.github.com/evantill/sample-lib")
 
-val nexusSnapshotUrl = uri("https://nexus.evaxion.fr/repository/maven-snapshots/")
-val nexusReleaseUrl = uri("https://nexus.evaxion.fr/repository/maven-releases/")
+val nexusSnapshotUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+val nexusReleaseUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
 
 publishing {
     repositories {
