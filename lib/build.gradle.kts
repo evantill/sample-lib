@@ -17,6 +17,7 @@ plugins {
     signing
 }
 
+version = rootProject.file("version.txt").readText().trim()
 publishing {
     repositories {
         maven {
