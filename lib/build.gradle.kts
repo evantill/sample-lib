@@ -15,17 +15,56 @@ plugins {
     `maven-publish`
     jacoco
     signing
+    id("at.stnwtr.gradle-secrets-plugin") version "1.0.1"
 }
 
+group = "com.github.evantill.sample-lib"
+
 version = rootProject.file("version.txt").readText().trim()
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+dependencies {
+    // This dependency is exported to consumers, that is to say found on their compile classpath.
+    api(libs.commons.math3)
+
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    implementation(libs.guava)
+}
+
+val isCiBuild = System.getenv("CI") != null
+
+val isSnaphot = version.toString().endsWith("-SNAPSHOT") || "snapshot".byProperty?.toBooleanStrict() ?: false
+
+val githupPackageUrl = uri("https://maven.pkg.github.com/evantill/sample-lib")
+
+val nexusSnapshotUrl = uri("https://nexus.evaxion.fr/repository/maven-snapshots/")
+val nexusReleaseUrl = uri("https://nexus.evaxion.fr/repository/maven-releases/")
+
 publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/evantill/sample-lib")
+            url = githupPackageUrl
             credentials {
                 username = "GITHUB_ACTOR".byProperty
                 password = "GITHUB_TOKEN".byProperty
+            }
+        }
+        maven {
+            name = "Nexus"
+            if (isSnaphot) {
+                url = nexusSnapshotUrl
+            } else {
+                url = nexusReleaseUrl
+            }
+            isAllowInsecureProtocol=true
+            credentials {
+                username = "NEXUS_USER".byProperty
+                password = "NEXUS_PASSWORD".byProperty
             }
         }
         maven {
@@ -37,7 +76,6 @@ publishing {
     publications {
         create<MavenPublication>("sampleLib") {
             from(components["java"])
-
             pom {
                 name.set("Sample Library")
                 description.set("Sample library build using gradle and github workflow")
@@ -66,45 +104,32 @@ publishing {
 }
 val localRepository = publishing.repositories["Local"] as MavenArtifactRepository
 val sampleLibPublication = publishing.publications["sampleLib"] as MavenPublication
+
 val publishAllPublicationsToLocalRepository by tasks.existing
-
-val isCiBuild = System.getenv("CI") != null
-
 val signingKeyId: String? by project
 val signingKey: String? by project
 val signingPassword: String? by project
 val signingConfigured: Boolean = (signingKeyId != null && signingKey != null && signingPassword != null)
+
 val signingEnabled = (isCiBuild && signingConfigured) || !isCiBuild
 
 signing {
-    if(signingConfigured) {
-        logger.lifecycle("sign using in memory pgp keys")
+    if (signingConfigured) {
+        logger.lifecycle("signing using in memory pgp keys")
         useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     } else {
-        logger.lifecycle("sign using gpg cmd")
+        logger.lifecycle("signing using gpg cmd")
         useGpgCmd()
     }
-    if(signingEnabled) {
+    if (signingEnabled) {
         sign(sampleLibPublication)
-    }else{
+    } else {
         logger.lifecycle("signing disabled")
     }
 }
 
-group = "com.github.evantill.sample-lib"
-version = "0.0.3-SNAPSHOT"
-
-repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
-}
-
-dependencies {
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api(libs.commons.math3)
-
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation(libs.guava)
+tasks.withType<Sign>().configureEach {
+    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
 
 testing {
@@ -117,29 +142,20 @@ testing {
     }
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
-val String.byProperty: String? get() = providers.gradleProperty(this).orNull
-
-val printLocalRepo by tasks.registering{
+val printLocalRepo by tasks.registering {
     group = "help"
-    description = "print "+localRepository.name+ " repository content"
+    description = "print " + localRepository.name + " repository content"
     dependsOn(publishAllPublicationsToLocalRepository)
-    doLast{
-        logger.lifecycle(""+localRepository.name+" repository content:")
+    doLast {
+        logger.lifecycle("" + localRepository.name + " repository content:")
         val repositoryDir = localRepository.url.toPath().toFile()
 
         fileTree(repositoryDir).filter {
             it.isFile()
         }.forEach {
-            logger.lifecycle("\t"+it.relativeTo(repositoryDir).toString());
+            logger.lifecycle("\t" + it.relativeTo(repositoryDir).toString());
         }
     }
 }
 
-tasks.withType<Sign>().configureEach {
-    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
-}
+val String.byProperty: String? get() = providers.gradleProperty(this).orNull
