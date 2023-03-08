@@ -1,4 +1,4 @@
-name: Deploy Release to GitHubPackages
+name: Deploy Release
 
 on:
   release:
@@ -41,4 +41,4 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
         with:
           gradle-home-cache-cleanup: true
-          arguments: publishAllToGitHubPackages --stacktrace
+          arguments: publishAllToGitHubPackages publishAllPublicationsToNexusRepository --stacktrace
